@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../api/todos';
-import { TodoError } from '../App';
+import { TodoError } from '../types/types';
 import cn from 'classnames';
 
 import * as Server from '../api/todos';
@@ -83,6 +83,7 @@ export const Header: React.FC<Props> = ({
           onClick={toggleAll}
         />
       )}
+
       <form onSubmit={event => event.preventDefault()}>
         <input
           ref={inputRef}

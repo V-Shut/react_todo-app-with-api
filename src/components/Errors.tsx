@@ -1,22 +1,22 @@
 import React from 'react';
 import cn from 'classnames';
-import { TodoError } from '../App';
+import { TodoError } from '../types/types';
 
 interface Props {
-  errors: TodoError | '';
+  error: TodoError | '';
   setErrors: (error: TodoError | '') => void;
 }
 
-export const Errors: React.FC<Props> = ({ errors, setErrors }) => {
+export const Errors: React.FC<Props> = ({ error, setErrors }) => {
   return (
     <div
       data-cy="ErrorNotification"
       className={cn({
-        'notification is-danger is-light has-text-weight-normal': errors,
-        hidden: !errors,
+        'notification is-danger is-light has-text-weight-normal': error,
+        hidden: !error,
       })}
     >
-      {errors && (
+      {error && (
         <button
           data-cy="HideErrorButton"
           type="button"
@@ -24,7 +24,7 @@ export const Errors: React.FC<Props> = ({ errors, setErrors }) => {
           onClick={() => setErrors('' as TodoError)}
         />
       )}
-      {errors}
+      {error}
     </div>
   );
 };

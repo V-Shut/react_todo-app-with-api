@@ -1,17 +1,18 @@
 import { Todo } from '../types/Todo';
+import { Filter } from '../types/types';
 
-export const FilterTodos = (todos: Todo[], filter: string) => {
+export const filterTodos = (todos: Todo[], filter: Filter): Todo[] => {
   switch (filter) {
-    case 'All':
+    case Filter.All:
       return todos;
 
-    case 'Active':
-      return [...todos].filter(el => !el.completed);
+    case Filter.Active:
+      return todos.filter(todo => !todo.completed);
 
-    case 'Completed':
-      return [...todos].filter(el => el.completed);
+    case Filter.Completed:
+      return todos.filter(todo => todo.completed);
 
     default:
-      return;
+      return todos;
   }
 };

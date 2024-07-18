@@ -1,7 +1,7 @@
 import React from 'react';
 import { Todo } from '../types/Todo';
 import cn from 'classnames';
-import { Filter } from '../App';
+import { Filter } from '../types/types';
 
 interface Props {
   todos: Todo[];

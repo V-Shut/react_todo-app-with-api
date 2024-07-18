@@ -7,22 +7,11 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Errors } from './components/Errors';
-import { FilterTodos } from './utils/functions';
-
-export enum Filter {
-  All = 'All',
-  Active = 'Active',
-  Completed = 'Completed',
-}
-
-export type TodoError =
-  | 'Unable to load todos'
-  | 'Unable to add a todo'
-  | 'Unable to delete a todo'
-  | 'Unable to update a todo';
+import { filterTodos } from './utils/functions';
+import { Filter, TodoError } from './types/types';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todosList, setTodosList] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [errors, setErrors] = useState<TodoError | ''>('');
@@ -35,9 +24,9 @@ export const App: React.FC = () => {
   function getData() {
     const fetchTodos = async () => {
       try {
-        const list = await getTodos();
+        const todos = await getTodos();
 
-        setTodos(list);
+        setTodosList(todos);
       } catch (error) {
         setErrors('Unable to load todos');
         setTimeout(() => {
@@ -57,7 +46,7 @@ export const App: React.FC = () => {
     try {
       setDeletedTodoId([id]);
       await Server.deletePost(id);
-      setTodos(todos.filter(el => el.id !== id));
+      setTodosList(todosList.filter(el => el.id !== id));
     } catch (error) {
       setErrors('Unable to delete a todo');
       setTimeout(() => {
@@ -72,38 +61,44 @@ export const App: React.FC = () => {
     return true;
   };
 
+  const getUpdatedTodos = (todos: Todo[]) => {
+    const allCompleted = todos.every(todo => todo.completed);
+    let updatedTodos;
+
+    if (allCompleted) {
+      updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+    } else {
+      updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: todo.completed ? todo.completed : true,
+      }));
+    }
+
+    return updatedTodos;
+  };
+
   const toggleAll = async () => {
     try {
-      const allCompleted = todos.every(todo => todo.completed);
-      let updatedTodos;
-
-      if (allCompleted) {
-        updatedTodos = todos.map(todo => ({
-          ...todo,
-          completed: false,
-        }));
-      } else {
-        updatedTodos = todos.map(todo => ({
-          ...todo,
-          completed: todo.completed ? todo.completed : true,
-        }));
-      }
+      const updatedTodos = getUpdatedTodos(todosList);
 
       const todosToUpdate = updatedTodos.filter(
-        (todo, index) => todos[index].completed !== todo.completed,
+        (todo, index) => todosList[index].completed !== todo.completed,
       );
 
       setLoaderId(todosToUpdate.map(todo => todo.id));
       const updatePromises = todosToUpdate.map(todo => Server.updatePost(todo));
 
       await Promise.all(updatePromises);
-      setTodos(prevTodos =>
+      setTodosList(prevTodos =>
         prevTodos.map(todo => {
           const updatedTodo = todosToUpdate.find(
             updated => updated.id === todo.id,
           );
 
-          return updatedTodo ? updatedTodo : todo;
+          return updatedTodo || todo;
         }),
       );
     } catch (error) {
@@ -120,13 +115,13 @@ export const App: React.FC = () => {
     try {
       setLoaderId([todo.id]);
       await Server.updatePost({ ...todo, completed: !todo.completed });
-      setTodos(prevTodos =>
-        prevTodos.map(el => {
-          if (el.id === todo.id) {
-            return { ...el, completed: !el.completed };
+      setTodosList(prevTodos =>
+        prevTodos.map(prevTodo => {
+          if (prevTodo.id === todo.id) {
+            return { ...prevTodo, completed: !prevTodo.completed };
           }
 
-          return el;
+          return prevTodo;
         }),
       );
     } catch {
@@ -144,7 +139,7 @@ export const App: React.FC = () => {
       try {
         setDeletedTodoId(todoIds);
         await Server.deletePost(id);
-        setTodos(list => list.filter(todo => todo.id !== id));
+        setTodosList(prevTodos => prevTodos.filter(todo => todo.id !== id));
       } catch {
         setErrors('Unable to delete a todo' as TodoError);
         setTimeout(() => {
@@ -157,9 +152,9 @@ export const App: React.FC = () => {
   };
 
   function loseFocus(id: number) {
-    if (todos) {
-      setTodos(
-        todos?.map(todo => {
+    if (todosList) {
+      setTodosList(
+        todosList?.map(todo => {
           if (activeChangeId === todo.id && editedTodo) {
             return { ...todo, title: editedTodo };
           }
@@ -177,7 +172,7 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const filteredTodos = FilterTodos(todos, filter);
+  const filteredTodos = filterTodos(todosList, filter);
 
   const defaultTempTodo = {
     id: 0,
@@ -192,12 +187,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
+          todos={todosList}
           tempTodo={tempTodo}
           title={title}
           defaultTempTodo={defaultTempTodo}
           setErrors={setErrors}
-          setTodos={setTodos}
+          setTodos={setTodosList}
           setTempTodo={setTempTodo}
           setNewTodo={setTitle}
           deletedTodoId={deletedTodoId}
@@ -205,11 +200,10 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          todos={todos}
           filteredTodos={filteredTodos}
           deletedTodoId={deletedTodoId}
           tempTodo={tempTodo}
-          setTodos={setTodos}
+          setTodos={setTodosList}
           setErrors={setErrors}
           handleDelete={handleDelete}
           defaultTempTodo={defaultTempTodo}
@@ -223,9 +217,9 @@ export const App: React.FC = () => {
           setLoaderId={setLoaderId}
         />
 
-        {!!todos.length && (
+        {!!todosList.length && (
           <Footer
-            todos={todos}
+            todos={todosList}
             filter={filter}
             setFilter={setFilter}
             deleteCompleted={deleteCompleted}
@@ -233,7 +227,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <Errors errors={errors} setErrors={setErrors} />
+      <Errors error={errors} setErrors={setErrors} />
     </div>
   );
 };

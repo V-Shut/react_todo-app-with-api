@@ -1,24 +1,23 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
-import { Todo } from '../types/Todo';
-import cn from 'classnames';
-import { TodoError } from '../App';
+import { Todo as TodoType } from '../types/Todo';
+import { TodoError } from '../types/types';
 import { updatePost } from '../api/todos';
+import { Todo } from './Todo';
 
 interface Props {
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  filteredTodos: Todo[] | undefined;
+  setTodos: React.Dispatch<React.SetStateAction<TodoType[]>>;
+  filteredTodos: TodoType[] | undefined;
   deletedTodoId: number[] | null;
-  tempTodo: Todo | null;
+  tempTodo: TodoType | null;
   setErrors: (error: TodoError) => void;
   handleDelete: (id: number) => Promise<boolean>;
-  defaultTempTodo: Todo;
+  defaultTempTodo: TodoType;
   activeChangeId: number | null;
   setActiveChangeId: (id: number) => void;
   loaderId: number[];
-  updateStatus: (todo: Todo) => void;
+  updateStatus: (todo: TodoType) => void;
   loseFocus: (id: number) => void;
   editedTodo: string;
   setEditedTodo: (title: string) => void;
@@ -42,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
   setEditedTodo,
   setLoaderId,
 }) => {
-  const edit = async (todo: Todo) => {
+  const edit = async (todo: TodoType) => {
     if (!editedTodo) {
       try {
         const deleteSuccessful = await handleDelete(todo.id);
@@ -72,9 +71,11 @@ export const TodoList: React.FC<Props> = ({
       setLoaderId([todo.id]);
       await updatePost({ ...todo, title: editedTodo.trim() });
       loseFocus(0);
-      setTodos(prev =>
-        prev.map(el =>
-          el.id === todo.id ? { ...el, title: editedTodo.trim() } : el,
+      setTodos(prevTodos =>
+        prevTodos.map(prevTodo =>
+          prevTodo.id === todo.id
+            ? { ...prevTodo, title: editedTodo.trim() }
+            : prevTodo,
         ),
       );
     } catch {
@@ -93,7 +94,7 @@ export const TodoList: React.FC<Props> = ({
 
   const handleEdit = async (
     event: React.KeyboardEvent<HTMLInputElement>,
-    todo: Todo,
+    todo: TodoType,
   ) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -109,67 +110,20 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {filteredTodos?.map(todo => (
-        <div
-          data-cy="Todo"
-          className={`todo ${cn({ completed: todo.completed })}`}
+        <Todo
           key={todo.id}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              onClick={() => updateStatus(todo)}
-              checked={todo.completed}
-            />
-          </label>
-
-          {activeChangeId !== todo.id ? (
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => {
-                setActiveChangeId(todo.id);
-                setEditedTodo(todo.title);
-              }}
-            >
-              {todo.title}
-            </span>
-          ) : (
-            <form onSubmit={event => event.preventDefault()}>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder={todo.title}
-                value={editedTodo}
-                onChange={event => setEditedTodo(event.target.value)}
-                onBlur={() => edit(todo)}
-                onKeyDown={event => handleEdit(event, todo)}
-                autoFocus
-              />
-            </form>
-          )}
-
-          {!activeChangeId && (
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDelete"
-              onClick={() => handleDelete(todo.id)}
-            >
-              ×
-            </button>
-          )}
-
-          <div
-            data-cy="TodoLoader"
-            className={`modal overlay ${cn({ 'is-active': loaderId.includes(todo.id) || deletedTodoId?.includes(todo.id) })}`}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+          todo={todo}
+          deletedTodoId={deletedTodoId}
+          setActiveChangeId={setActiveChangeId}
+          activeChangeId={activeChangeId}
+          handleDelete={handleDelete}
+          loaderId={loaderId}
+          updateStatus={updateStatus}
+          editedTodo={editedTodo}
+          setEditedTodo={setEditedTodo}
+          handleEdit={handleEdit}
+          edit={edit}
+        />
       ))}
 
       {Boolean(tempTodo) && (
