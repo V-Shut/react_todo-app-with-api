@@ -89,7 +89,10 @@ export const Todo: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${classNames({ 'is-active': loaderId.includes(todo.id) || deletedTodoId?.includes(todo.id) })}`}
+        className={classNames('modal overlay', {
+          'is-active':
+            loaderId.includes(todo.id) || deletedTodoId?.includes(todo.id),
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

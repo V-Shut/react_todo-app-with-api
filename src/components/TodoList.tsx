@@ -52,7 +52,7 @@ export const TodoList: React.FC<Props> = ({
       } catch {
         await setActiveChangeId(todo.id);
         setEditedTodo(editedTodo);
-        setErrors('Unable to delete a todo' as TodoError);
+        setErrors(TodoError.DeleteError);
         setTimeout(() => {
           setErrors('' as TodoError);
         }, 3000);
@@ -81,12 +81,10 @@ export const TodoList: React.FC<Props> = ({
     } catch {
       setActiveChangeId(todo.id);
       setEditedTodo(editedTodo);
-      setErrors('Unable to update a todo' as TodoError);
+      setErrors(TodoError.UpdateError);
       setTimeout(() => {
         setErrors('' as TodoError);
       }, 3000);
-
-      throw new Error('Unable to update a todo');
     } finally {
       setLoaderId([]);
     }

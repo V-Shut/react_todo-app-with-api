@@ -16,10 +16,20 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   deleteCompleted,
 }) => {
+  const clearCompleted = todos
+    ?.filter(el => {
+      if (el.completed) {
+        return true;
+      }
+
+      return false;
+    })
+    .map((el: Todo) => el.id);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(el => !el.completed).length} items left`}
+        {`${todos.filter(todo => !todo.completed).length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -55,19 +65,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={() =>
-          deleteCompleted(
-            todos
-              ?.filter(el => {
-                if (el.completed) {
-                  return true;
-                }
-
-                return false;
-              })
-              .map((el: Todo) => el.id),
-          )
-        }
+        onClick={() => deleteCompleted(clearCompleted)}
         disabled={todos.every((el: Todo) => !el.completed)}
       >
         Clear completed

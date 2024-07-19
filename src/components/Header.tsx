@@ -58,7 +58,7 @@ export const Header: React.FC<Props> = ({
         setTodos([...todos, task]);
         setNewTodo('');
       } catch {
-        setErrors('Unable to add a todo' as TodoError);
+        setErrors(TodoError.AddError);
         setTimeout(() => {
           setErrors('');
         }, 3000);
@@ -66,7 +66,7 @@ export const Header: React.FC<Props> = ({
         setTempTodo(null);
       }
     } else {
-      setErrors('Title should not be empty' as TodoError);
+      setErrors(TodoError.EmptyTitleError);
       setTimeout(() => {
         setErrors('');
       }, 3000);

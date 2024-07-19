@@ -21,7 +21,7 @@ export const Errors: React.FC<Props> = ({ error, setErrors }) => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setErrors('' as TodoError)}
+          onClick={() => setErrors('')}
         />
       )}
       {error}

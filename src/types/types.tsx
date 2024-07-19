@@ -1,8 +1,11 @@
-export type TodoError =
-  | 'Unable to load todos'
-  | 'Unable to add a todo'
-  | 'Unable to delete a todo'
-  | 'Unable to update a todo';
+export enum TodoError {
+  LoadError = 'Unable to load todos',
+  AddError = 'Unable to add a todo',
+  DeleteError = 'Unable to delete a todo',
+  UpdateError = 'Unable to update a todo',
+  ToggleError = 'Unable to toggle todos',
+  EmptyTitleError = 'Title should not be empty',
+}
 
 export enum Filter {
   All = 'All',

@@ -28,7 +28,7 @@ export const App: React.FC = () => {
 
         setTodosList(todos);
       } catch (error) {
-        setErrors('Unable to load todos');
+        setErrors(TodoError.LoadError);
         setTimeout(() => {
           setErrors('');
         }, 3000);
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
       await Server.deletePost(id);
       setTodosList(todosList.filter(el => el.id !== id));
     } catch (error) {
-      setErrors('Unable to delete a todo');
+      setErrors(TodoError.DeleteError);
       setTimeout(() => {
         setErrors('');
       }, 3000);
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
         }),
       );
     } catch (error) {
-      setErrors('Unable to toggle todos' as TodoError);
+      setErrors(TodoError.ToggleError);
       setTimeout(() => {
         setErrors('');
       }, 3000);
@@ -125,7 +125,7 @@ export const App: React.FC = () => {
         }),
       );
     } catch {
-      setErrors('Unable to update a todo' as TodoError);
+      setErrors(TodoError.UpdateError);
       setTimeout(() => {
         setErrors('');
       }, 3000);
@@ -141,7 +141,7 @@ export const App: React.FC = () => {
         await Server.deletePost(id);
         setTodosList(prevTodos => prevTodos.filter(todo => todo.id !== id));
       } catch {
-        setErrors('Unable to delete a todo' as TodoError);
+        setErrors(TodoError.DeleteError);
         setTimeout(() => {
           setErrors('');
         }, 3000);
